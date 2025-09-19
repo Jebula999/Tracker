@@ -1,0 +1,19 @@
+{
+  "name": "tracker-pwa",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-feather": "^2.0.10"
+  },
+  "scripts": {
+    "start": "serve -s build",
+    "build": "react-scripts build",
+    "dev": "react-scripts start"
+  },
+  "devDependencies": {
+    "react-scripts": "5.0.1",
+    "serve": "^14.2.0"
+  }
+}

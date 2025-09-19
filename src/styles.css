@@ -1,0 +1,131 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  color: #333;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, auto);
+  gap: 10px;
+  padding: 10px;
+  flex: 1;
+}
+
+.category-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #666;
+  background: none;
+  padding: 20px;
+  cursor: pointer;
+}
+
+.category-icon {
+  width: 40px;
+  height: 40px;
+  stroke: #666;
+  fill: none;
+  margin-bottom: 5px;
+}
+
+.select-option, .select-subcategory, .select-sleep-type, .sleep-flow {
+  padding: 10px;
+  flex: 1;
+}
+
+.select-option ul, .select-subcategory ul, .select-sleep-type ul, .sleep-flow ul {
+  list-style: none;
+  padding: 0;
+}
+
+.select-option li, .select-subcategory li, .select-sleep-type li, .sleep-flow li {
+  margin-bottom: 10px;
+}
+
+.select-option button, .select-subcategory button, .select-sleep-type button, .sleep-flow button {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #666;
+  background: none;
+  cursor: pointer;
+}
+
+.tab-footer {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+.tab-footer button {
+  flex: 1;
+  padding: 15px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-right: 1px solid #ccc;
+}
+
+.tab-footer button:last-child {
+  border-right: none;
+}
+
+.track-page, .flags-page {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.entry-list li, .journal-list li {
+  border-bottom: 1px solid #ddd;
+  padding: 5px 0;
+}
+
+.entry-data {
+  margin-left: 10px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  opacity: 0.9;
+  z-index: 1000;
+}
+
+.centered-page {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.journal-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.journal-form textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.journal-form button {
+  align-self: flex-end;
+  padding: 10px 20px;
+}
