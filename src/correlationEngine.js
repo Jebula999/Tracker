@@ -43,61 +43,75 @@ function areOnSameDay(ts1, ts2) {
   );
 }
 
+function getUniqueEvents(entries) {
+  const uniqueEvents = new Map();
+  entries.forEach(entry => {
+    const eventKey = JSON.stringify(entryToEventPairs(entry));
+    if (!uniqueEvents.has(eventKey)) {
+      uniqueEvents.set(eventKey, entry);
+    }
+  });
+  return Array.from(uniqueEvents.values());
+}
+
 export function runAnalysis(entries, filters = {}) {
   const baselineProbabilities = getBaselineProbabilities(entries);
   const correlations = {};
-
   const filterKeys = Object.keys(filters);
-  const targetEventDescription = filterKeys.map(key => `${key}=${filters[key]}`).join(', ');
 
-  const targetEntries = entries.filter(entry => {
-    return filterKeys.every(key => {
-      if (key === 'category') return entry.category === filters[key];
-      if (key === 'subcategory') return entry.subcategory === filters[key];
-      if (key === 'option') return entry.option === filters[key];
-      return entry.data && entry.data[key] === filters[key];
+  let sourceEntries = entries;
+  if (filterKeys.length > 0) {
+    sourceEntries = entries.filter(entry => {
+      return filterKeys.every(key => {
+        if (key === 'category' && entry.category !== filters[key]) return false;
+        if (key === 'subcategory' && entry.subcategory !== filters[key]) return false;
+        if (key === 'option' && entry.option !== filters[key]) return false;
+        return true;
+      });
     });
-  });
+  }
 
-  if (targetEntries.length === 0) return {};
+  const uniqueEventsToAnalyze = getUniqueEvents(sourceEntries);
 
-  correlations[targetEventDescription] = {};
-  const precedingEventCounts = {};
-  let targetCount = 0;
+  for (const uniqueEvent of uniqueEventsToAnalyze) {
+    const targetEventPairs = entryToEventPairs(uniqueEvent);
+    const targetEventKey = JSON.stringify(targetEventPairs);
+    const targetEventDescription = targetEventPairs.map(p => `${p.field}: ${p.value}`).join(', ');
 
-  for (const targetEntry of targetEntries) {
-    targetCount++;
-    const precedingEntries = entries.filter(entry => entry.timestamp < targetEntry.timestamp);
+    const allInstancesOfTarget = entries.filter(e => JSON.stringify(entryToEventPairs(e)) === targetEventKey);
+    if (allInstancesOfTarget.length === 0) continue;
 
-    const seenPrecedingEvents = new Set();
-    for (const pEntry of precedingEntries) {
-      const pEvents = entryToEventPairs(pEntry);
-      for (const pEvent of pEvents) {
-        // Don't correlate an event with itself
-        if (filterKeys.some(key => key === pEvent.field && filters[key] === pEvent.value)) {
-          continue;
-        }
+    const precedingEventCounts = {};
+    for (const instance of allInstancesOfTarget) {
+      const precedingEntries = entries.filter(p => p.timestamp < instance.timestamp);
+      const seenInThisInstance = new Set();
+      for (const pEntry of precedingEntries) {
+        const pEventPairs = entryToEventPairs(pEntry);
+        // Don't correlate an event with its own individual parts
+        if (JSON.stringify(pEventPairs) === targetEventKey) continue;
 
-        const key = JSON.stringify(pEvent);
-        if (!seenPrecedingEvents.has(key)) {
-          precedingEventCounts[key] = (precedingEventCounts[key] || 0) + 1;
-          seenPrecedingEvents.add(key);
+        for (const pPair of pEventPairs) {
+            const pPairKey = JSON.stringify(pPair);
+            if (!seenInThisInstance.has(pPairKey)) {
+                precedingEventCounts[pPairKey] = (precedingEventCounts[pPairKey] || 0) + 1;
+                seenInThisInstance.add(pPairKey);
+            }
         }
       }
     }
-  }
 
-  for (const key in precedingEventCounts) {
-    const conditionalProbability = precedingEventCounts[key] / targetCount;
-    const baselineProbability = baselineProbabilities[key];
-    const likelihood = conditionalProbability / baselineProbability;
-
-    if (likelihood > 1.2 || likelihood < 0.8) {
-      correlations[targetEventDescription][key] = {
-        conditionalProbability,
-        baselineProbability,
-        likelihood,
-      };
+    if (Object.keys(precedingEventCounts).length > 0) {
+        correlations[targetEventDescription] = {};
+        for (const pKey in precedingEventCounts) {
+            const conditionalProbability = precedingEventCounts[pKey] / allInstancesOfTarget.length;
+            const baselineProbability = baselineProbabilities[pKey];
+            if (baselineProbability > 0) {
+                const likelihood = conditionalProbability / baselineProbability;
+                if (likelihood > 1.2 || likelihood < 0.8) {
+                    correlations[targetEventDescription][pKey] = { conditionalProbability, baselineProbability, likelihood };
+                }
+            }
+        }
     }
   }
 

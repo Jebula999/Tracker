@@ -11,95 +11,45 @@ export default function Flags() {
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [filters, setFilters] = useState({});
 
-  const handleFilterChange = (filterName, value) => {
-    const newFilters = { ...filters, [filterName]: value };
-    // When a filter changes, remove subsequent filters
-    const filterNames = ['category', 'subcategory', 'option', 'duration', 'hadDream', 'dreamType', 'amount'];
-    const currentIndex = filterNames.indexOf(filterName);
-    for (let i = currentIndex + 1; i < filterNames.length; i++) {
-      delete newFilters[filterNames[i]];
-    }
-    setFilters(newFilters);
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    setFilters(category ? { category } : {});
   };
 
-  const renderFilterDropdowns = () => {
+  const handleSubItemChange = (e) => {
+    const subItem = e.target.value;
+    const categorySchema = trackerData[filters.category];
+    const key = categorySchema.options ? 'option' : 'subcategory';
+    setFilters({ ...filters, [key]: subItem });
+  };
+
+  const renderSimpleDropdowns = () => {
     const dropdowns = [];
-    const filterNames = ['category', 'subcategory', 'option', 'duration', 'hadDream', 'dreamType', 'amount'];
-    let currentSchemaLevel = trackerData;
-    let path = [];
 
-    for (let i = 0; i < filterNames.length; i++) {
-      const filterName = filterNames[i];
-      const filterValue = filters[filterName];
-      const options = Object.keys(currentSchemaLevel);
+    dropdowns.push(
+      <select key="category" value={filters.category || ''} onChange={handleCategoryChange}>
+        <option value="">Select Category</option>
+        {Object.keys(trackerData).map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
+    );
 
-      if (options.length === 0) break;
+    if (filters.category) {
+      const categorySchema = trackerData[filters.category];
+      if (categorySchema) {
+        const subItemOptions = categorySchema.options
+          ? categorySchema.options.map(o => typeof o === 'string' ? o : o.label)
+          : Object.keys(categorySchema);
 
-      // Special handling for 'options' which is a direct array
-      if (currentSchemaLevel.options && Array.isArray(currentSchemaLevel.options)) {
+        const subItemKey = categorySchema.options ? 'option' : 'subcategory';
+
         dropdowns.push(
-          <select
-            key={filterName}
-            value={filterValue || ''}
-            onChange={e => handleFilterChange(filterName, e.target.value)}
-          >
-            <option value="">Select {filterName}</option>
-            {currentSchemaLevel.options.map(opt => {
-              const label = typeof opt === 'string' ? opt : opt.label;
-              return <option key={label} value={label}>{label}</option>;
-            })}
+          <select key="subitem" value={filters[subItemKey] || ''} onChange={handleSubItemChange}>
+            <option value="">Select Sub-item</option>
+            {subItemOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
           </select>
         );
-        break; // Stop after the 'options' array
-      }
-
-      if (options.includes('options') && !filterValue) {
-        // if there is an options property, we should probably be selecting from that.
-         dropdowns.push(
-          <select
-            key={filterName}
-            value={filterValue || ''}
-            onChange={e => handleFilterChange(filterName, e.target.value)}
-          >
-            <option value="">Select {filterName}</option>
-            {currentSchemaLevel.options.map(opt => {
-              const label = typeof opt === 'string' ? opt : opt.label;
-              return <option key={label} value={label}>{label}</option>;
-            })}
-          </select>
-        );
-        break;
-      }
-
-
-      dropdowns.push(
-        <select
-          key={filterName}
-          value={filterValue || ''}
-          onChange={e => handleFilterChange(filterName, e.target.value)}
-        >
-          <option value="">Select {filterName}</option>
-          {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-        </select>
-      );
-
-      if (!filterValue) break;
-
-      path.push(filterValue);
-      currentSchemaLevel = currentSchemaLevel[filterValue];
-      if (currentSchemaLevel && currentSchemaLevel.next) {
-        currentSchemaLevel = currentSchemaLevel.next;
-      }
-
-       if (!currentSchemaLevel) break;
-
-      // If the next level is another filter value (e.g. "Normal" or "Real" for HadDream),
-      // we need to find the right path.
-      if (filters[filterNames[i+1]] && currentSchemaLevel[filters[filterNames[i+1]]]) {
-          currentSchemaLevel = currentSchemaLevel[filters[filterNames[i+1]]];
       }
     }
-
     return dropdowns;
   };
 
@@ -146,8 +96,8 @@ export default function Flags() {
       </div>
 
       <div className="correlation-filters">
-        {renderFilterDropdowns()}
-        <button onClick={() => setFilters({})} className="button-style">Reset</button>
+        {renderSimpleDropdowns()}
+        <button onClick={() => setFilters({})} className="button-style" style={{ minWidth: 'auto', padding: '10px 20px' }}>Reset</button>
       </div>
 
       {analysis && (
