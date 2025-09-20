@@ -64,6 +64,8 @@ export default function Flags() {
           value={endDate}
           onChange={e => setEndDate(e.target.value)}
         />
+      </div>
+      <div className="track-actions">
         <button onClick={handleAnalyse} className="button-style">Analyse</button>
         <CsvExport data={filteredEntries} filename="flags-export.csv" />
       </div>

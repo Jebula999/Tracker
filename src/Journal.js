@@ -35,7 +35,7 @@ export default function Journal() {
           required
         />
         <div className="journal-buttons">
-          <button type="submit" className="csv-export-button">Add Entry</button>
+          <button type="submit" className="button-style">Add Entry</button>
           <CsvExport
             data={entries.map(e => ({ timestamp: e.timestamp, text: e.text })) }
             filename="journal-export.csv"
