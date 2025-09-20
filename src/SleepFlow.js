@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { saveEntry } from './localStorageHelpers';
 import { trackerData } from './dataSchema';
 
-export default function SleepFlow({ onDone, sleepType, showNotif }) {
+export default function SleepFlow({ onDone, sleepType, showNotif, selectCategory }) {
   const [step, setStep] = useState("Duration");
   const [collected, setCollected] = useState({});
 
@@ -59,7 +59,7 @@ export default function SleepFlow({ onDone, sleepType, showNotif }) {
 
   return (
     <div className="sleep-flow">
-      <h2>Sleep – {sleepType} – {step}</h2>
+      <h2 style={{ textAlign: 'center' }}>{selectCategory}</h2>
       <ul>
         {getOptions().map((opt, idx) => {
           if (typeof opt === "object" && opt.input === "text") {

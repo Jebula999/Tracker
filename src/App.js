@@ -60,15 +60,15 @@ function App() {
 
         {page === "SelectSleepType" && (
           <div className="select-sleep-type">
-            <h2>Sleep – select type</h2>
+            <h2 style={{ textAlign: 'center' }}>Sleep</h2>
             <ul>
               <li>
-                <button onClick={() => { setSleepType("Nap"); setPage("SleepFlow"); }}>
+                <button onClick={() => { setSleepType("Nap"); setSelectCategory("Sleep"); setPage("SleepFlow"); }}>
                   Nap
                 </button>
               </li>
               <li>
-                <button onClick={() => { setSleepType("Last Night"); setPage("SleepFlow"); }}>
+                <button onClick={() => { setSleepType("Last Night"); setSelectCategory("Sleep"); setPage("SleepFlow"); }}>
                   Last Night
                 </button>
               </li>
@@ -81,6 +81,7 @@ function App() {
             onDone={() => { setPage("Dashboard"); setSleepType(null); }}
             sleepType={sleepType}
             showNotif={showNotification}
+            selectCategory={selectCategory}
           />
         )}
 

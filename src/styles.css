@@ -278,6 +278,8 @@ input[type="text"], input[type="date"] {
   cursor: pointer;
   border-radius: 4px;
   font-weight: bold;
+  min-width: 160px;
+  text-align: center;
 }
 
 .button-style:hover {

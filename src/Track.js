@@ -60,9 +60,11 @@ export default function Track() {
   };
 
   const handleDeleteFiltered = () => {
-    const timestamps = filtered.map(entry => entry.timestamp);
-    deleteFilteredTrackEntries(timestamps);
-    setEntries(entries.filter(entry => !timestamps.includes(entry.timestamp)));
+    if (window.confirm("Are you sure you want to delete the filtered entries?")) {
+      const timestamps = filtered.map(entry => entry.timestamp);
+      deleteFilteredTrackEntries(timestamps);
+      setEntries(entries.filter(entry => !timestamps.includes(entry.timestamp)));
+    }
   };
 
   const resetFilters = () => {
