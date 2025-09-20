@@ -7,7 +7,7 @@ export default function Journal() {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    setEntries(loadJournal());
+    setEntries(loadJournal().sort((a, b) => b.timestamp - a.timestamp));
   }, []);
 
   const handleSubmit = e => {
@@ -15,7 +15,7 @@ export default function Journal() {
     if (!text.trim()) return;
     const entry = { timestamp: Date.now(), text: text.trim() };
     saveJournal(entry);
-    setEntries([entry, ...entries]);
+    setEntries([entry, ...entries].sort((a, b) => b.timestamp - a.timestamp));
     setText("");
   };
 
@@ -35,7 +35,7 @@ export default function Journal() {
           required
         />
         <div className="journal-buttons">
-          <button type="submit">Add Entry</button>
+          <button type="submit" className="csv-export-button">Add Entry</button>
           <CsvExport
             data={entries.map(e => ({ timestamp: e.timestamp, text: e.text })) }
             filename="journal-export.csv"
@@ -45,9 +45,11 @@ export default function Journal() {
       <ul className="journal-list">
         {entries.map((e, idx) => (
           <li key={idx}>
-            <div>{new Date(e.timestamp).toLocaleString()}</div>
-            <div>{e.text}</div>
-            <button onClick={() => handleDelete(e.timestamp)}>Delete</button>
+            <div className="journal-entry-content">
+              <div>{new Date(e.timestamp).toLocaleString()}</div>
+              <div>{e.text}</div>
+            </div>
+            <button onClick={() => handleDelete(e.timestamp)} className="delete-button">Delete</button>
           </li>
         ))}
       </ul>

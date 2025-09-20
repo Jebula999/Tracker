@@ -10,6 +10,7 @@ import Notification from './Components/Notification';
 
 function App() {
   const [page, setPage] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const [selectCategory, setSelectCategory] = useState(null);
   const [selectSubcategory, setSelectSubcategory] = useState(null);
   const [nextBranchPath, setNextBranchPath] = useState([]);  // for nested “next” chain
@@ -25,6 +26,9 @@ function App() {
 
   const navigateTo = (to, data = {}) => {
     setPage(to);
+    if (["Dashboard", "Track", "Journal", "Flags"].includes(to)) {
+      setActiveTab(to);
+    }
     if ("categoryKey" in data) setSelectCategory(data.categoryKey);
     else setSelectCategory(null);
     if ("subcategory" in data) setSelectSubcategory(data.subcategory);
@@ -241,10 +245,10 @@ function App() {
       </main>
 
       <footer className="tab-footer">
-        <button className={page === 'Dashboard' ? 'active' : ''} onClick={() => setPage("Dashboard")}>Dashboard</button>
-        <button className={page === 'Track' ? 'active' : ''} onClick={() => setPage("Track")}>Track</button>
-        <button className={page === 'Journal' ? 'active' : ''} onClick={() => setPage("Journal")}>Journal</button>
-        <button className={page === 'Flags' ? 'active' : ''} onClick={() => setPage("Flags")}>Flags</button>
+        <button className={activeTab === 'Dashboard' ? 'active' : ''} onClick={() => navigateTo("Dashboard")}>Dashboard</button>
+        <button className={activeTab === 'Track' ? 'active' : ''} onClick={() => navigateTo("Track")}>Track</button>
+        <button className={activeTab === 'Journal' ? 'active' : ''} onClick={() => navigateTo("Journal")}>Journal</button>
+        <button className={activeTab === 'Flags' ? 'active' : ''} onClick={() => navigateTo("Flags")}>Flags</button>
       </footer>
 
       <Notification message={notif.message} visible={notif.visible} />

@@ -56,15 +56,19 @@ body, html {
 
 .select-option li, .select-subcategory li, .select-sleep-type li, .sleep-flow li {
   margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
 }
 
 .select-option button, .select-subcategory button, .select-sleep-type button, .sleep-flow button {
-  width: 100%;
+  width: 80%;
   padding: 10px;
   border: 1px solid #FFD700;
   background: #1f1f1f;
   color: #EAEAEA;
   cursor: pointer;
+  border-radius: 15px;
+  box-sizing: border-box;
 }
 
 .select-option button:hover, .select-subcategory button:hover, .select-sleep-type button:hover, .sleep-flow button:hover, .category-button:hover {
@@ -124,6 +128,20 @@ body, html {
 .entry-list li, .journal-list li {
   border-bottom: 1px solid #444;
   padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.journal-entry-content {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.delete-button {
+  flex-shrink: 0;
+  margin-left: 10px;
 }
 
 .entry-data {
@@ -200,6 +218,8 @@ input[type="text"], input[type="date"] {
   gap: 15px;
   margin-bottom: 20px;
   width: 100%;
+  max-width: 100%;
+  flex-wrap: wrap;
 }
 
 .entry-list {
@@ -213,26 +233,40 @@ input[type="text"], input[type="date"] {
   justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .multi-select {
   position: relative;
+  display: inline-block;
 }
 
 .multi-select-options {
+  display: block;
   position: absolute;
-  top: 100%;
-  left: 0;
   background-color: #1f1f1f;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 100;
   border: 1px solid #FFD700;
   border-radius: 4px;
   padding: 10px;
-  z-index: 10;
 }
 
 .multi-select-options label {
   display: block;
   margin-bottom: 5px;
+}
+
+.analysis-results {
+  margin-top: 20px;
+}
+
+.correlation-group {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #FFD700;
+  border-radius: 4px;
 }
 
 .csv-export-button {
