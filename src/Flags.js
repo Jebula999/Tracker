@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { loadEntries } from './localStorageHelpers';
 import CsvExport from './Components/CsvExport';
+import { runAnalysis } from './correlationEngine';
 
 export default function Flags() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [filteredEntries, setFilteredEntries] = useState([]);
+  const [window, setWindow] = useState('same day');
 
   const handleAnalyse = () => {
     const entries = loadEntries();
@@ -25,28 +27,8 @@ export default function Flags() {
 
     setFilteredEntries(filtered);
 
-    // Simple correlation: for each event type, find the most common preceding events
-    const correlations = {};
-    const allEventTypes = [...new Set(entries.map(e => e.category))];
-
-    for (const type of allEventTypes) {
-      correlations[type] = {};
-      const eventsOfType = filtered.filter(e => e.category === type);
-      if (eventsOfType.length === 0) continue;
-
-      for (const event of eventsOfType) {
-        // Look for events in the 24 hours prior
-        const preceding = filtered.filter(p =>
-          p.timestamp < event.timestamp &&
-          p.timestamp >= (event.timestamp - 24 * 60 * 60 * 1000)
-        );
-        for (const p of preceding) {
-          const pKey = p.subcategory ? `${p.category} - ${p.subcategory}` : p.category;
-          correlations[type][pKey] = (correlations[type][pKey] || 0) + 1;
-        }
-      }
-    }
-    setAnalysis(correlations);
+    const analysisResults = runAnalysis(filtered, window);
+    setAnalysis(analysisResults);
   };
 
   return (
@@ -64,29 +46,42 @@ export default function Flags() {
           value={endDate}
           onChange={e => setEndDate(e.target.value)}
         />
+        <select value={window} onChange={e => setWindow(e.target.value)}>
+          <option value="same day">Same Day</option>
+          <option value="last 3 entries">Last 3 Entries</option>
+          <option value="last 6 hours">Last 6 Hours</option>
+        </select>
       </div>
       <div className="track-actions">
         <button onClick={handleAnalyse} className="button-style">Analyse</button>
-        <CsvExport data={filteredEntries} filename="flags-export.csv" />
+        <CsvExport data={analysis} filename="flags-export.csv" isAnalysis={true} />
       </div>
 
       {analysis && (
         <div className="analysis-results">
           <h3>Analysis Results</h3>
-          {Object.entries(analysis).map(([type, precedingEvents]) => (
-            <div key={type} className="correlation-group">
-              <h4>When you experienced: <strong>{type}</strong></h4>
-              <p>It was most often preceded by:</p>
-              <ul>
-                {Object.entries(precedingEvents)
-                  .sort(([, a], [, b]) => b - a)
-                  .slice(0, 5) // Show top 5
-                  .map(([p, count]) => (
-                    <li key={p}>{p} ({count} times)</li>
-                  ))}
-              </ul>
-            </div>
-          ))}
+          {Object.entries(analysis).map(([targetEvent, precedingEvents]) => {
+            const precedingEventEntries = Object.entries(precedingEvents);
+            if (precedingEventEntries.length === 0) return null;
+
+            return (
+              <div key={targetEvent} className="correlation-group">
+                <h4>When you experienced: <strong>{targetEvent}</strong></h4>
+                <p>It was most often preceded by:</p>
+                <ul>
+                  {precedingEventEntries
+                    .sort(([, a], [, b]) => b.likelihood - a.likelihood)
+                    .map(([precedingEvent, data]) => (
+                      <li key={precedingEvent}>
+                        {precedingEvent} (
+                        {data.likelihood > 1 ? 'more' : 'less'} likely,{' '}
+                        {(data.conditionalProbability * 100).toFixed(0)}% of the time)
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
