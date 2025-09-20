@@ -29,12 +29,14 @@ export default function Journal() {
           rows={4}
           required
         />
-        <button type="submit">Add Entry</button>
+        <div className="journal-buttons">
+          <button type="submit">Add Entry</button>
+          <CsvExport
+            data={entries.map(e => ({ timestamp: e.timestamp, text: e.text })) }
+            filename="journal-export.csv"
+          />
+        </div>
       </form>
-      <CsvExport
-        data={entries.map(e => ({ timestamp: e.timestamp, text: e.text })) }
-        filename="journal-export.csv"
-      />
       <ul className="journal-list">
         {entries.map((e, idx) => (
           <li key={idx}>

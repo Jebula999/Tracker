@@ -3,7 +3,7 @@ body, html {
   padding: 0;
   font-family: sans-serif;
   color: #EAEAEA;
-  background-color: #121212;
+  background-color: #000000;
 }
 
 .app-container {
@@ -26,17 +26,20 @@ body, html {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid #E0C56E;
+  border: 1px solid #FFD700;
   background: #1f1f1f;
-  padding: 20px;
+  padding: 10px;
   cursor: pointer;
   color: #EAEAEA;
+  border-radius: 15px;
+  width: auto;
+  margin: 5px;
 }
 
 .category-icon {
-  width: 40px;
-  height: 40px;
-  stroke: #E0C56E;
+  width: 30px;
+  height: 30px;
+  stroke: #FFD700;
   fill: none;
   margin-bottom: 5px;
 }
@@ -58,7 +61,7 @@ body, html {
 .select-option button, .select-subcategory button, .select-sleep-type button, .sleep-flow button {
   width: 100%;
   padding: 10px;
-  border: 1px solid #E0C56E;
+  border: 1px solid #FFD700;
   background: #1f1f1f;
   color: #EAEAEA;
   cursor: pointer;
@@ -70,7 +73,11 @@ body, html {
 
 .tab-footer {
   display: flex;
-  border-top: 1px solid #E0C56E;
+  border-top: 1px solid #FFD700;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #000000;
 }
 
 .tab-footer button {
@@ -79,7 +86,7 @@ body, html {
   background: none;
   border: none;
   cursor: pointer;
-  border-right: 1px solid #E0C56E;
+  border-right: 1px solid #FFD700;
   color: #EAEAEA;
 }
 
@@ -98,6 +105,9 @@ body, html {
   padding: 20px;
   flex: 1;
   overflow-y: auto;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 1200px;
 }
 
 .flags-page {
@@ -131,14 +141,23 @@ body, html {
 }
 
 .centered-page {
-  max-width: 600px;
+  max-width: 800px;
   margin: 20px auto;
   padding: 20px;
+  text-align: center;
 }
 
 .journal-form {
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+
+.journal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .journal-form textarea {
@@ -146,21 +165,21 @@ body, html {
   margin-bottom: 10px;
   background-color: #1f1f1f;
   color: #EAEAEA;
-  border: 1px solid #E0C56E;
+  border: 1px solid #FFD700;
 }
 
 .journal-form button {
   align-self: flex-end;
   padding: 10px 20px;
-  background-color: #E0C56E;
-  color: #121212;
+  background-color: #FFD700;
+  color: #000000;
   border: none;
 }
 
 input[type="text"], input[type="date"] {
     background-color: #1f1f1f;
     color: #EAEAEA;
-    border: 1px solid #E0C56E;
+    border: 1px solid #FFD700;
     padding: 8px;
     margin-right: 10px;
 }
@@ -171,12 +190,10 @@ input[type="text"], input[type="date"] {
   gap: 15px;
   margin-bottom: 20px;
   width: 100%;
-  max-width: 600px;
 }
 
 .entry-list {
   width: 100%;
-  max-width: 600px;
   padding: 0;
   list-style: none;
 }
@@ -184,8 +201,8 @@ input[type="text"], input[type="date"] {
 .csv-export-button {
   margin-bottom: 20px;
   padding: 10px 20px;
-  background-color: #E0C56E;
-  color: #121212;
+  background-color: #FFD700;
+  color: #000000;
   border: none;
   cursor: pointer;
   border-radius: 4px;

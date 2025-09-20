@@ -6,7 +6,8 @@ import CsvExport from './Components/CsvExport';
 export default function Track() {
   const [entries, setEntries] = useState([]);
   const [filterCategory, setFilterCategory] = useState("");
-  const [filterDate, setFilterDate] = useState("");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
 
   useEffect(() => {
     setEntries(loadEntries());
@@ -17,12 +18,15 @@ export default function Track() {
     if (filterCategory) {
       ok = ok && (e.category === filterCategory);
     }
-    if (filterDate) {
-      const d = new Date(e.timestamp);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth()+1).padStart(2, "0");
-      const dd = String(d.getDate()).padStart(2, "0");
-      if (`${yyyy}-${mm}-${dd}` !== filterDate) ok = false;
+    if (filterStartDate) {
+        const startDate = new Date(filterStartDate);
+        startDate.setHours(0, 0, 0, 0);
+        ok = ok && (e.timestamp >= startDate.getTime());
+    }
+    if (filterEndDate) {
+        const endDate = new Date(filterEndDate);
+        endDate.setHours(23, 59, 59, 999);
+        ok = ok && (e.timestamp <= endDate.getTime());
     }
     return ok;
   });
@@ -32,14 +36,21 @@ export default function Track() {
       <div className="filters">
         <input
           type="text"
-          placeholder="Category"
+          placeholder="Filter by category"
           value={filterCategory}
           onChange={e => setFilterCategory(e.target.value)}
         />
         <input
           type="date"
-          value={filterDate}
-          onChange={e => setFilterDate(e.target.value)}
+          placeholder="Start date"
+          value={filterStartDate}
+          onChange={e => setFilterStartDate(e.target.value)}
+        />
+        <input
+          type="date"
+          placeholder="End date"
+          value={filterEndDate}
+          onChange={e => setFilterEndDate(e.target.value)}
         />
       </div>
       <CsvExport data={filtered} filename="track-export.csv" />
