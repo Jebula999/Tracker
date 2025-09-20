@@ -98,6 +98,11 @@ body, html {
     background: #1f1f1f;
 }
 
+.tab-footer button.active {
+  background-color: #FFD700;
+  color: #000000;
+}
+
 .track-page {
   display: flex;
   flex-direction: column;
@@ -153,9 +158,14 @@ body, html {
   align-items: center;
 }
 
+.content {
+  padding-bottom: 60px; /* Adjust this value to match the footer height */
+}
+
 .journal-buttons {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 10px;
   margin-top: 10px;
 }
@@ -196,6 +206,33 @@ input[type="text"], input[type="date"] {
   width: 100%;
   padding: 0;
   list-style: none;
+}
+
+.track-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.multi-select {
+  position: relative;
+}
+
+.multi-select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #1f1f1f;
+  border: 1px solid #FFD700;
+  border-radius: 4px;
+  padding: 10px;
+  z-index: 10;
+}
+
+.multi-select-options label {
+  display: block;
+  margin-bottom: 5px;
 }
 
 .csv-export-button {
