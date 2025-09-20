@@ -2,7 +2,8 @@ body, html {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
-  color: #333;
+  color: #EAEAEA;
+  background-color: #121212;
 }
 
 .app-container {
@@ -25,16 +26,17 @@ body, html {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid #666;
-  background: none;
+  border: 1px solid #E0C56E;
+  background: #1f1f1f;
   padding: 20px;
   cursor: pointer;
+  color: #EAEAEA;
 }
 
 .category-icon {
   width: 40px;
   height: 40px;
-  stroke: #666;
+  stroke: #E0C56E;
   fill: none;
   margin-bottom: 5px;
 }
@@ -56,14 +58,19 @@ body, html {
 .select-option button, .select-subcategory button, .select-sleep-type button, .sleep-flow button {
   width: 100%;
   padding: 10px;
-  border: 1px solid #666;
-  background: none;
+  border: 1px solid #E0C56E;
+  background: #1f1f1f;
+  color: #EAEAEA;
   cursor: pointer;
+}
+
+.select-option button:hover, .select-subcategory button:hover, .select-sleep-type button:hover, .sleep-flow button:hover, .category-button:hover {
+  background: #2a2a2a;
 }
 
 .tab-footer {
   display: flex;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #E0C56E;
 }
 
 .tab-footer button {
@@ -72,28 +79,42 @@ body, html {
   background: none;
   border: none;
   cursor: pointer;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid #E0C56E;
+  color: #EAEAEA;
 }
 
 .tab-footer button:last-child {
   border-right: none;
 }
 
-.track-page, .flags-page {
+.tab-footer button:hover {
+    background: #1f1f1f;
+}
+
+.track-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.flags-page {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
 }
 
 .entry-list li, .journal-list li {
-  border-bottom: 1px solid #ddd;
-  padding: 5px 0;
+  border-bottom: 1px solid #444;
+  padding: 8px 0;
 }
 
 .entry-data {
   margin-left: 10px;
   font-size: 0.9em;
-  color: #555;
+  color: #aaa;
 }
 
 .notification {
@@ -101,8 +122,8 @@ body, html {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #333;
-  color: white;
+  background-color: #E0C56E;
+  color: #121212;
   padding: 12px 20px;
   border-radius: 4px;
   opacity: 0.9;
@@ -123,9 +144,54 @@ body, html {
 .journal-form textarea {
   width: 100%;
   margin-bottom: 10px;
+  background-color: #1f1f1f;
+  color: #EAEAEA;
+  border: 1px solid #E0C56E;
 }
 
 .journal-form button {
   align-self: flex-end;
   padding: 10px 20px;
+  background-color: #E0C56E;
+  color: #121212;
+  border: none;
+}
+
+input[type="text"], input[type="date"] {
+    background-color: #1f1f1f;
+    color: #EAEAEA;
+    border: 1px solid #E0C56E;
+    padding: 8px;
+    margin-right: 10px;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.entry-list {
+  width: 100%;
+  max-width: 600px;
+  padding: 0;
+  list-style: none;
+}
+
+.csv-export-button {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: #E0C56E;
+  color: #121212;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.csv-export-button:hover {
+    background-color: #d4b55a;
 }

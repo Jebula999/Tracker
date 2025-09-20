@@ -43,6 +43,6 @@ export default function CsvExport({ data, filename = "export.csv" }) {
   };
 
   return (
-    <button onClick={handleClick}>Export CSV</button>
+    <button onClick={handleClick} className="csv-export-button">Export CSV</button>
   );
 }
