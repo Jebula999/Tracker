@@ -37,12 +37,6 @@ export function saveJournal(journalEntry) {
   localStorage.setItem(JOURNAL_KEY, JSON.stringify(all));
 }
 
-export function deleteJournalEntry(timestamp) {
-  let all = loadJournal();
-  all = all.filter(entry => entry.timestamp !== timestamp);
-  localStorage.setItem(JOURNAL_KEY, JSON.stringify(all));
-}
-
 export function deleteTrackEntry(timestamp) {
   let all = loadEntries();
   all = all.filter(entry => entry.timestamp !== timestamp);

@@ -5,7 +5,7 @@ export default function EntryList({ entries, onDelete }) {
     <ul className="entry-list">
       {entries.map((e, idx) => (
         <li key={idx}>
-          <div>
+          <div className="entry-content">
             <div><strong>{e.category}</strong> — {new Date(e.timestamp).toLocaleString()}</div>
             {e.subcategory && <div><em>Type:</em> {e.subcategory}</div>}
             {e.option && <div><em>Option:</em> {e.option}</div>}

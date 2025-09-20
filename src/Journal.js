@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { loadJournal, saveJournal, deleteJournalEntry } from './localStorageHelpers';
+import { loadJournal, saveJournal } from './localStorageHelpers';
 import CsvExport from './Components/CsvExport';
 
 export default function Journal() {
@@ -7,7 +7,7 @@ export default function Journal() {
   const [text, setText] = useState("");
 
   useEffect(() => {
-    setEntries(loadJournal().sort((a, b) => b.timestamp - a.timestamp));
+    setEntries(loadJournal());
   }, []);
 
   const handleSubmit = e => {
@@ -15,13 +15,8 @@ export default function Journal() {
     if (!text.trim()) return;
     const entry = { timestamp: Date.now(), text: text.trim() };
     saveJournal(entry);
-    setEntries([entry, ...entries].sort((a, b) => b.timestamp - a.timestamp));
+    setEntries([entry, ...entries]);
     setText("");
-  };
-
-  const handleDelete = timestamp => {
-    deleteJournalEntry(timestamp);
-    setEntries(entries.filter(entry => entry.timestamp !== timestamp));
   };
 
   return (
@@ -34,22 +29,17 @@ export default function Journal() {
           rows={4}
           required
         />
-        <div className="journal-buttons">
-          <button type="submit" className="csv-export-button">Add Entry</button>
-          <CsvExport
-            data={entries.map(e => ({ timestamp: e.timestamp, text: e.text })) }
-            filename="journal-export.csv"
-          />
-        </div>
+        <button type="submit">Add Entry</button>
       </form>
+      <CsvExport
+        data={entries.map(e => ({ timestamp: e.timestamp, text: e.text })) }
+        filename="journal-export.csv"
+      />
       <ul className="journal-list">
         {entries.map((e, idx) => (
           <li key={idx}>
-            <div className="journal-entry-content">
-              <div>{new Date(e.timestamp).toLocaleString()}</div>
-              <div>{e.text}</div>
-            </div>
-            <button onClick={() => handleDelete(e.timestamp)} className="delete-button">Delete</button>
+            <div>{new Date(e.timestamp).toLocaleString()}</div>
+            <div>{e.text}</div>
           </li>
         ))}
       </ul>

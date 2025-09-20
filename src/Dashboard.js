@@ -17,9 +17,9 @@ export default function Dashboard({ navigateTo }) {
 
   const handleCategoryClick = (categoryKey) => {
     if (categoryKey === "Sleep") {
-      navigateTo("SelectSleepType");
+      navigateTo("SelectSleepType", { parentTab: 'Dashboard' });
     } else {
-      navigateTo("SelectOption", { categoryKey });
+      navigateTo("SelectOption", { categoryKey, parentTab: 'Dashboard' });
     }
   };
 
