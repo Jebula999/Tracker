@@ -30,9 +30,33 @@ function convertEntriesToCSV(entries) {
   return [headers.join(","), ...lines].join("\r\n");
 }
 
-export default function CsvExport({ data, filename = "export.csv" }) {
+function convertAnalysisToCSV(analysis) {
+  if (!analysis) return "";
+
+  const headers = ["Target Condition", "Correlated Condition", "Correlated Value", "Likelihood", "Conditional Probability"];
+  const lines = [];
+
+  for (const targetEvent in analysis) {
+    for (const precedingEvent in analysis[targetEvent]) {
+      const data = analysis[targetEvent][precedingEvent];
+      const preceding = JSON.parse(precedingEvent);
+      const row = [
+        `"${targetEvent}"`,
+        `"${preceding.field}"`,
+        `"${preceding.value}"`,
+        data.likelihood.toFixed(2),
+        (data.conditionalProbability * 100).toFixed(0) + "%",
+      ];
+      lines.push(row.join(","));
+    }
+  }
+
+  return [headers.join(","), ...lines].join("\r\n");
+}
+
+export default function CsvExport({ data, filename = "export.csv", isAnalysis = false }) {
   const handleClick = () => {
-    const csvString = convertEntriesToCSV(data);
+    const csvString = isAnalysis ? convertAnalysisToCSV(data) : convertEntriesToCSV(data);
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

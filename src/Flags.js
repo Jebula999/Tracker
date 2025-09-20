@@ -1,12 +1,57 @@
 import React, { useState } from 'react';
 import { loadEntries } from './localStorageHelpers';
 import CsvExport from './Components/CsvExport';
+import { runAnalysis } from './correlationEngine';
+import { trackerData } from './dataSchema';
 
 export default function Flags() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [filteredEntries, setFilteredEntries] = useState([]);
+  const [filters, setFilters] = useState({});
+
+  const handleCategoryChange = (e) => {
+    const category = e.target.value;
+    setFilters(category ? { category } : {});
+  };
+
+  const handleSubItemChange = (e) => {
+    const subItem = e.target.value;
+    const categorySchema = trackerData[filters.category];
+    const key = categorySchema.options ? 'option' : 'subcategory';
+    setFilters({ ...filters, [key]: subItem });
+  };
+
+  const renderSimpleDropdowns = () => {
+    const dropdowns = [];
+
+    dropdowns.push(
+      <select key="category" value={filters.category || ''} onChange={handleCategoryChange}>
+        <option value="">Select Category</option>
+        {Object.keys(trackerData).map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
+    );
+
+    if (filters.category) {
+      const categorySchema = trackerData[filters.category];
+      if (categorySchema) {
+        const subItemOptions = categorySchema.options
+          ? categorySchema.options.map(o => typeof o === 'string' ? o : o.label)
+          : Object.keys(categorySchema);
+
+        const subItemKey = categorySchema.options ? 'option' : 'subcategory';
+
+        dropdowns.push(
+          <select key="subitem" value={filters[subItemKey] || ''} onChange={handleSubItemChange}>
+            <option value="">Select Sub-item</option>
+            {subItemOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+          </select>
+        );
+      }
+    }
+    return dropdowns;
+  };
 
   const handleAnalyse = () => {
     const entries = loadEntries();
@@ -25,28 +70,8 @@ export default function Flags() {
 
     setFilteredEntries(filtered);
 
-    // Simple correlation: for each event type, find the most common preceding events
-    const correlations = {};
-    const allEventTypes = [...new Set(entries.map(e => e.category))];
-
-    for (const type of allEventTypes) {
-      correlations[type] = {};
-      const eventsOfType = filtered.filter(e => e.category === type);
-      if (eventsOfType.length === 0) continue;
-
-      for (const event of eventsOfType) {
-        // Look for events in the 24 hours prior
-        const preceding = filtered.filter(p =>
-          p.timestamp < event.timestamp &&
-          p.timestamp >= (event.timestamp - 24 * 60 * 60 * 1000)
-        );
-        for (const p of preceding) {
-          const pKey = p.subcategory ? `${p.category} - ${p.subcategory}` : p.category;
-          correlations[type][pKey] = (correlations[type][pKey] || 0) + 1;
-        }
-      }
-    }
-    setAnalysis(correlations);
+    const analysisResults = runAnalysis(filtered, filters);
+    setAnalysis(analysisResults);
   };
 
   return (
@@ -67,26 +92,42 @@ export default function Flags() {
       </div>
       <div className="track-actions">
         <button onClick={handleAnalyse} className="button-style">Analyse</button>
-        <CsvExport data={filteredEntries} filename="flags-export.csv" />
+        <CsvExport data={analysis} filename="flags-export.csv" isAnalysis={true} />
+      </div>
+
+      <div className="correlation-filters">
+        {renderSimpleDropdowns()}
+        <button onClick={() => setFilters({})} className="button-style" style={{ minWidth: 'auto', padding: '10px 20px' }}>Reset</button>
       </div>
 
       {analysis && (
         <div className="analysis-results">
           <h3>Analysis Results</h3>
-          {Object.entries(analysis).map(([type, precedingEvents]) => (
-            <div key={type} className="correlation-group">
-              <h4>When you experienced: <strong>{type}</strong></h4>
-              <p>It was most often preceded by:</p>
-              <ul>
-                {Object.entries(precedingEvents)
-                  .sort(([, a], [, b]) => b - a)
-                  .slice(0, 5) // Show top 5
-                  .map(([p, count]) => (
-                    <li key={p}>{p} ({count} times)</li>
-                  ))}
-              </ul>
-            </div>
-          ))}
+          {Object.entries(analysis).map(([targetEvent, precedingEvents]) => {
+            const precedingEventEntries = Object.entries(precedingEvents);
+            if (precedingEventEntries.length === 0) return null;
+
+            return (
+              <div key={targetEvent} className="correlation-group">
+                <h4>When: <strong>{targetEvent}</strong></h4>
+                <p>It was most often preceded by:</p>
+                <ul>
+                  {precedingEventEntries
+                    .sort(([, a], [, b]) => b.likelihood - a.likelihood)
+                    .map(([precedingEvent, data]) => {
+                      const preceding = JSON.parse(precedingEvent);
+                      return (
+                        <li key={precedingEvent}>
+                          <strong>{preceding.field}:</strong> {preceding.value} (
+                          {data.likelihood > 1 ? 'more' : 'less'} likely,{' '}
+                          {(data.conditionalProbability * 100).toFixed(0)}% of the time)
+                        </li>
+                      );
+                    })}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
