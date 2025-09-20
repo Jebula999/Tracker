@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { loadEntries, deleteTrackEntry, deleteFilteredTrackEntries } from './localStorageHelpers';
 import EntryList from './Components/EntryList';
 import CsvExport from './Components/CsvExport';
@@ -9,10 +9,23 @@ export default function Track() {
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [showCategories, setShowCategories] = useState(false);
+  const categorySelectRef = useRef(null);
 
   useEffect(() => {
-    setEntries(loadEntries());
+    setEntries(loadEntries().sort((a, b) => b.timestamp - a.timestamp));
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (categorySelectRef.current && !categorySelectRef.current.contains(event.target)) {
+        setShowCategories(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [categorySelectRef]);
 
   const allCategories = [...new Set(entries.map(e => e.category))];
 
@@ -52,23 +65,29 @@ export default function Track() {
     setEntries(entries.filter(entry => !timestamps.includes(entry.timestamp)));
   };
 
+  const resetFilters = () => {
+    setSelectedCategories([]);
+    setFilterStartDate("");
+    setFilterEndDate("");
+  };
+
   return (
     <div className="track-page">
       <div className="filters">
-        <div className="multi-select">
-          <button onClick={() => setShowCategories(!showCategories)}>
-            {selectedCategories.length > 0 ? `${selectedCategories.length} selected` : "Select Categories"}
+        <div className="multi-select" ref={categorySelectRef}>
+          <button onClick={() => setShowCategories(!showCategories)} className="csv-export-button">
+            {selectedCategories.length > 0 ? `${selectedCategories.length} cat selected` : "Select Categories"}
           </button>
           {showCategories && (
             <div className="multi-select-options">
-              {allCategories.map(c => (
-                <label key={c}>
+              {allCategories.map(category => (
+                <label key={category}>
                   <input
                     type="checkbox"
-                    checked={selectedCategories.includes(c)}
-                    onChange={() => handleCategoryChange(c)}
+                    checked={selectedCategories.includes(category)}
+                    onChange={() => handleCategoryChange(category)}
                   />
-                  {c}
+                  {category}
                 </label>
               ))}
             </div>
@@ -86,10 +105,11 @@ export default function Track() {
           value={filterEndDate}
           onChange={e => setFilterEndDate(e.target.value)}
         />
+        <button onClick={resetFilters}>Reset</button>
       </div>
       <div className="track-actions">
         <CsvExport data={filtered} filename="track-export.csv" />
-        <button onClick={handleDeleteFiltered}>Delete Filtered</button>
+        <button onClick={handleDeleteFiltered} className="csv-export-button">Delete Filtered</button>
       </div>
       <EntryList entries={filtered} onDelete={handleDelete} />
     </div>
