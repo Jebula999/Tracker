@@ -11,7 +11,7 @@ export default function Dashboard({ navigateTo }) {
     Energy: Icons.Battery,
     Activity: Icons.Activity,
     Symptoms: Icons.AlertCircle,
-    HeartHealth: Icons.Heart,
+    Heart: Icons.Heart,
     Intimacy: Icons.Users
   };
 
