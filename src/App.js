@@ -51,120 +51,148 @@ function App() {
 
   return (
     <div className="app-container">
-      {page === "Dashboard" && <Dashboard navigateTo={navigateTo} />}
+      <main className="content">
+        {page === "Dashboard" && <Dashboard navigateTo={navigateTo} />}
 
-      {page === "SelectSleepType" && (
-        <div className="select-sleep-type">
-          <h2>Sleep – select type</h2>
-          <ul>
-            <li>
-              <button onClick={() => { setSleepType("Nap"); setPage("SleepFlow"); }}>
-                Nap
-              </button>
-            </li>
-            <li>
-              <button onClick={() => { setSleepType("Last Night"); setPage("SleepFlow"); }}>
-                Last Night
-              </button>
-            </li>
-          </ul>
-        </div>
-      )}
+        {page === "SelectSleepType" && (
+          <div className="select-sleep-type">
+            <h2>Sleep – select type</h2>
+            <ul>
+              <li>
+                <button onClick={() => { setSleepType("Nap"); setPage("SleepFlow"); }}>
+                  Nap
+                </button>
+              </li>
+              <li>
+                <button onClick={() => { setSleepType("Last Night"); setPage("SleepFlow"); }}>
+                  Last Night
+                </button>
+              </li>
+            </ul>
+          </div>
+        )}
 
-      {page === "SleepFlow" && sleepType && (
-        <SleepFlow
-          onDone={() => { setPage("Dashboard"); setSleepType(null); }}
-          sleepType={sleepType}
-          showNotif={showNotification}
-        />
-      )}
+        {page === "SleepFlow" && sleepType && (
+          <SleepFlow
+            onDone={() => { setPage("Dashboard"); setSleepType(null); }}
+            sleepType={sleepType}
+            showNotif={showNotification}
+          />
+        )}
 
-      {page === "SelectOption" && selectCategory && (
-        <div className="select-option">
-          <h2>{selectCategory} – select option / subcategory</h2>
-          <ul>
-            {(() => {
-              const catObj = trackerData[selectCategory];
-              if (catObj && catObj.options == null) {
-                // has subcategories
-                return Object.keys(catObj).map((sub, idx) => (
-                  <li key={idx}>
-                    <button onClick={() =>
-                      navigateTo("SelectOptionWithSub", {
-                        categoryKey: selectCategory,
-                        subcategory: sub
-                      })
-                    }>
-                      {sub}
-                    </button>
-                  </li>
-                ));
-              } else {
-                // direct options
-                return catObj.options.map((opt, idx) => {
-                  if (typeof opt === "object" && opt.input === "text") {
-                    return (
-                      <li key={idx}>
-                        <button onClick={() => {
-                          const val = window.prompt("Enter text:");
-                          if (val) handleLeafOption(selectCategory, val, null);
-                        }}>
-                          {opt.label}
-                        </button>
-                      </li>
-                    );
-                  } else {
-                    return (
-                      <li key={idx}>
-                        <button onClick={() =>
-                          handleLeafOption(selectCategory, opt, null)
-                        }>
-                          {opt}
-                        </button>
-                      </li>
-                    );
-                  }
-                });
-              }
-            })()}
-          </ul>
-        </div>
-      )}
-
-      {page === "SelectOptionWithSub" && selectCategory && selectSubcategory && (
-        <div className="select-option">
-          <h2>{selectCategory} – {selectSubcategory} – select option / leaf or deeper</h2>
-          <ul>
-            {(() => {
-              const subObj = trackerData[selectCategory][selectSubcategory];
-              // If nested "next" exists, detect which leaf
-              if (subObj.next) {
-                // Options first
-                return subObj.options.map((opt, idx) => {
-                  if (typeof opt === "object" && opt.input === "text") {
-                    return (
-                      <li key={idx}>
-                        <button onClick={() => {
-                          const val = window.prompt("Enter text:");
-                          if (val) handleLeafOption(selectCategory, val, selectSubcategory);
-                        }}>
-                          {opt.label}
-                        </button>
-                      </li>
-                    );
-                  } else {
-                    if (subObj.next[opt]) {
-                      // drill further
+        {page === "SelectOption" && selectCategory && (
+          <div className="select-option">
+            <h2>{selectCategory} – select option / subcategory</h2>
+            <ul>
+              {(() => {
+                const catObj = trackerData[selectCategory];
+                if (catObj && catObj.options == null) {
+                  // has subcategories
+                  return Object.keys(catObj).map((sub, idx) => (
+                    <li key={idx}>
+                      <button onClick={() =>
+                        navigateTo("SelectOptionWithSub", {
+                          categoryKey: selectCategory,
+                          subcategory: sub
+                        })
+                      }>
+                        {sub}
+                      </button>
+                    </li>
+                  ));
+                } else {
+                  // direct options
+                  return catObj.options.map((opt, idx) => {
+                    if (typeof opt === "object" && opt.input === "text") {
+                      return (
+                        <li key={idx}>
+                          <button onClick={() => {
+                            const val = window.prompt("Enter text:");
+                            if (val) handleLeafOption(selectCategory, val, null);
+                          }}>
+                            {opt.label}
+                          </button>
+                        </li>
+                      );
+                    } else {
                       return (
                         <li key={idx}>
                           <button onClick={() =>
-                            navigateTo("SelectOptionNext", {
-                              categoryKey: selectCategory,
-                              subcategory: selectSubcategory,
-                              nextKey: opt
-                            })
+                            handleLeafOption(selectCategory, opt, null)
                           }>
                             {opt}
+                          </button>
+                        </li>
+                      );
+                    }
+                  });
+                }
+              })()}
+            </ul>
+          </div>
+        )}
+
+        {page === "SelectOptionWithSub" && selectCategory && selectSubcategory && (
+          <div className="select-option">
+            <h2>{selectCategory} – {selectSubcategory} – select option / leaf or deeper</h2>
+            <ul>
+              {(() => {
+                const subObj = trackerData[selectCategory][selectSubcategory];
+                // If nested "next" exists, detect which leaf
+                if (subObj.next) {
+                  // Options first
+                  return subObj.options.map((opt, idx) => {
+                    if (typeof opt === "object" && opt.input === "text") {
+                      return (
+                        <li key={idx}>
+                          <button onClick={() => {
+                            const val = window.prompt("Enter text:");
+                            if (val) handleLeafOption(selectCategory, val, selectSubcategory);
+                          }}>
+                            {opt.label}
+                          </button>
+                        </li>
+                      );
+                    } else {
+                      if (subObj.next[opt]) {
+                        // drill further
+                        return (
+                          <li key={idx}>
+                            <button onClick={() =>
+                              navigateTo("SelectOptionNext", {
+                                categoryKey: selectCategory,
+                                subcategory: selectSubcategory,
+                                nextKey: opt
+                              })
+                            }>
+                              {opt}
+                            </button>
+                          </li>
+                        );
+                      } else {
+                        return (
+                          <li key={idx}>
+                            <button onClick={() =>
+                              handleLeafOption(selectCategory, opt, selectSubcategory)
+                            }>
+                              {opt}
+                            </button>
+                          </li>
+                        );
+                      }
+                    }
+                  });
+                } else {
+                  // no nested next, leaf at this level
+                  return subObj.options.map((opt, idx) => {
+                    if (typeof opt === "object" && opt.input === "text") {
+                      return (
+                        <li key={idx}>
+                          <button onClick={() => {
+                            const val = window.prompt("Enter text:");
+                            if (val) handleLeafOption(selectCategory, val, selectSubcategory);
+                          }}>
+                            {opt.label}
                           </button>
                         </li>
                       );
@@ -179,70 +207,44 @@ function App() {
                         </li>
                       );
                     }
-                  }
-                });
-              } else {
-                // no nested next, leaf at this level
-                return subObj.options.map((opt, idx) => {
-                  if (typeof opt === "object" && opt.input === "text") {
-                    return (
-                      <li key={idx}>
-                        <button onClick={() => {
-                          const val = window.prompt("Enter text:");
-                          if (val) handleLeafOption(selectCategory, val, selectSubcategory);
-                        }}>
-                          {opt.label}
-                        </button>
-                      </li>
-                    );
-                  } else {
-                    return (
-                      <li key={idx}>
-                        <button onClick={() =>
-                          handleLeafOption(selectCategory, opt, selectSubcategory)
-                        }>
-                          {opt}
-                        </button>
-                      </li>
-                    );
-                  }
-                });
-              }
-            })()}
-          </ul>
-        </div>
-      )}
-
-      {page === "SelectOptionNext" && (() => {
-        // This handles deeper "next" branches (like Food -> Breakfast -> Takeout -> specific Takeout options)
-        // We need state to remember nextKey etc. For simplicity below:
-        const nb = nextBranchPath; // not fully implemented path storage, but outline
-        const data = {}; // placeholder
-        // Could implement similar patterns: find schema node via trackerData and nb
-        return (
-          <div className="select-option">
-            <h2>More options</h2>
-            <ul>
-              <li><button onClick={() => {
-                // placeholder: leaf handling
-                handleLeafOption(selectCategory, "placeholder", selectSubcategory);
-              }}>Placeholder Option</button></li>
+                  });
+                }
+              })()}
             </ul>
           </div>
-        );
-      })()}
+        )}
 
-      {page === "Track" && <Track />}
+        {page === "SelectOptionNext" && (() => {
+          // This handles deeper "next" branches (like Food -> Breakfast -> Takeout -> specific Takeout options)
+          // We need state to remember nextKey etc. For simplicity below:
+          const nb = nextBranchPath; // not fully implemented path storage, but outline
+          const data = {}; // placeholder
+          // Could implement similar patterns: find schema node via trackerData and nb
+          return (
+            <div className="select-option">
+              <h2>More options</h2>
+              <ul>
+                <li><button onClick={() => {
+                  // placeholder: leaf handling
+                  handleLeafOption(selectCategory, "placeholder", selectSubcategory);
+                }}>Placeholder Option</button></li>
+              </ul>
+            </div>
+          );
+        })()}
 
-      {page === "Journal" && <Journal />}
+        {page === "Track" && <Track />}
 
-      {page === "Flags" && <Flags />}
+        {page === "Journal" && <Journal />}
+
+        {page === "Flags" && <Flags />}
+      </main>
 
       <footer className="tab-footer">
-        <button onClick={() => setPage("Dashboard")}>Dashboard</button>
-        <button onClick={() => setPage("Track")}>Track</button>
-        <button onClick={() => setPage("Journal")}>Journal</button>
-        <button onClick={() => setPage("Flags")}>Flags</button>
+        <button className={page === 'Dashboard' ? 'active' : ''} onClick={() => setPage("Dashboard")}>Dashboard</button>
+        <button className={page === 'Track' ? 'active' : ''} onClick={() => setPage("Track")}>Track</button>
+        <button className={page === 'Journal' ? 'active' : ''} onClick={() => setPage("Journal")}>Journal</button>
+        <button className={page === 'Flags' ? 'active' : ''} onClick={() => setPage("Flags")}>Flags</button>
       </footer>
 
       <Notification message={notif.message} visible={notif.visible} />

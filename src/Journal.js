@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { loadJournal, saveJournal } from './localStorageHelpers';
+import { loadJournal, saveJournal, deleteJournalEntry } from './localStorageHelpers';
 import CsvExport from './Components/CsvExport';
 
 export default function Journal() {
@@ -17,6 +17,11 @@ export default function Journal() {
     saveJournal(entry);
     setEntries([entry, ...entries]);
     setText("");
+  };
+
+  const handleDelete = timestamp => {
+    deleteJournalEntry(timestamp);
+    setEntries(entries.filter(entry => entry.timestamp !== timestamp));
   };
 
   return (
@@ -42,6 +47,7 @@ export default function Journal() {
           <li key={idx}>
             <div>{new Date(e.timestamp).toLocaleString()}</div>
             <div>{e.text}</div>
+            <button onClick={() => handleDelete(e.timestamp)}>Delete</button>
           </li>
         ))}
       </ul>
