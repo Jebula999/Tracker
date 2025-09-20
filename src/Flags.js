@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { loadEntries } from './localStorageHelpers';
+import CsvExport from './Components/CsvExport';
 
 export default function Flags() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [analysis, setAnalysis] = useState(null);
+  const [filteredEntries, setFilteredEntries] = useState([]);
 
   const handleAnalyse = () => {
     const entries = loadEntries();
@@ -20,6 +22,8 @@ export default function Flags() {
       end.setHours(23, 59, 59, 999);
       filtered = filtered.filter(e => e.timestamp <= end.getTime());
     }
+
+    setFilteredEntries(filtered);
 
     // Simple correlation: for each event type, find the most common preceding events
     const correlations = {};
@@ -60,7 +64,8 @@ export default function Flags() {
           value={endDate}
           onChange={e => setEndDate(e.target.value)}
         />
-        <button onClick={handleAnalyse}>Analyse</button>
+        <button onClick={handleAnalyse} className="button-style">Analyse</button>
+        <CsvExport data={filteredEntries} filename="flags-export.csv" />
       </div>
 
       {analysis && (

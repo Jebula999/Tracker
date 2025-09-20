@@ -86,7 +86,7 @@ function App() {
 
         {page === "SelectOption" && selectCategory && (
           <div className="select-option">
-            <h2>{selectCategory} – select option / subcategory</h2>
+            <h2 style={{ textAlign: 'center' }}>{selectCategory}</h2>
             <ul>
               {(() => {
                 const catObj = trackerData[selectCategory];
@@ -138,7 +138,7 @@ function App() {
 
         {page === "SelectOptionWithSub" && selectCategory && selectSubcategory && (
           <div className="select-option">
-            <h2>{selectCategory} – {selectSubcategory} – select option / leaf or deeper</h2>
+            <h2 style={{ textAlign: 'center' }}>{selectCategory}</h2>
             <ul>
               {(() => {
                 const subObj = trackerData[selectCategory][selectSubcategory];

@@ -75,7 +75,7 @@ export default function Track() {
     <div className="track-page">
       <div className="filters">
         <div className="multi-select" ref={categorySelectRef}>
-          <button onClick={() => setShowCategories(!showCategories)} className="csv-export-button">
+          <button onClick={() => setShowCategories(!showCategories)} className="button-style">
             {selectedCategories.length > 0 ? `${selectedCategories.length} cat selected` : "Select Categories"}
           </button>
           {showCategories && (
@@ -105,11 +105,11 @@ export default function Track() {
           value={filterEndDate}
           onChange={e => setFilterEndDate(e.target.value)}
         />
-        <button onClick={resetFilters}>Reset</button>
+        <button onClick={resetFilters} className="button-style">Reset</button>
       </div>
       <div className="track-actions">
         <CsvExport data={filtered} filename="track-export.csv" />
-        <button onClick={handleDeleteFiltered} className="csv-export-button">Delete Filtered</button>
+        <button onClick={handleDeleteFiltered} className="button-style">Delete Filtered</button>
       </div>
       <EntryList entries={filtered} onDelete={handleDelete} />
     </div>

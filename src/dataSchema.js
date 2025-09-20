@@ -117,11 +117,12 @@ export const trackerData = {
     options: ["Headache","Stomachache","Fever","Cough","Fatigue","Blindness",{ label: "Other", input: "text" }]
   },
 
-  HeartHealth: {
-    HeartRate: { options: ["Low","Normal","High",{ label: "Other", input: "text" }] },
-    BloodPressure: { options: ["Low","Normal","High",{ label: "Other", input: "text" }] },
-    ChestPain: { options: ["None","Mild","Severe",{ label: "Other", input: "text" }] },
-    Palpitations: { options: ["One","A Few","Too Many",{ label: "Other", input: "text" }] }
+  Heart: {
+    HeartRate: { options: ["Low", "Normal", "High", { label: "Other", input: "text" }] },
+    BloodPressure: { options: ["Low", "Normal", "High", { label: "Other", input: "text" }] },
+    ChestPain: { options: ["None", "Mild", "Severe", { label: "Other", input: "text" }] },
+    Palpitations: { options: ["One", "A Few", "Too Many", { label: "Other", input: "text" }] },
+    Other: { options: [{ label: "Other", input: "text" }] }
   },
 
   Intimacy: {
