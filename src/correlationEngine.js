@@ -1,33 +1,33 @@
 // This file will contain the new correlation analysis logic.
 
-function formatEvent(entry) {
-  let eventString = `${entry.category}`;
-  if (entry.subcategory) {
-    eventString += `-${entry.subcategory}`;
-  }
-  if (entry.option) {
-    eventString += `-${entry.option}`;
-  }
+function entryToEventPairs(entry) {
+  const pairs = [];
+  if (entry.category) pairs.push({ field: 'category', value: entry.category });
+  if (entry.subcategory) pairs.push({ field: 'subcategory', value: entry.subcategory });
+  if (entry.option) pairs.push({ field: 'option', value: entry.option });
   if (entry.data) {
     for (const key in entry.data) {
-      eventString += `-${key}:${entry.data[key]}`;
+      pairs.push({ field: key, value: entry.data[key] });
     }
   }
-  return eventString;
+  return pairs;
 }
 
-function getUniqueEvents(entries) {
-  const events = entries.map(formatEvent);
-  return [...new Set(events)];
-}
-
-function getBaselineProbabilities(entries, uniqueEvents) {
-  const probabilities = {};
+function getBaselineProbabilities(entries) {
+  const eventCounts = {};
   const totalEntries = entries.length;
 
-  for (const event of uniqueEvents) {
-    const count = entries.filter(entry => formatEvent(entry) === event).length;
-    probabilities[event] = count / totalEntries;
+  for (const entry of entries) {
+    const eventPairs = entryToEventPairs(entry);
+    for (const pair of eventPairs) {
+      const key = JSON.stringify(pair);
+      eventCounts[key] = (eventCounts[key] || 0) + 1;
+    }
+  }
+
+  const probabilities = {};
+  for (const key in eventCounts) {
+    probabilities[key] = eventCounts[key] / totalEntries;
   }
 
   return probabilities;
@@ -43,55 +43,61 @@ function areOnSameDay(ts1, ts2) {
   );
 }
 
-export function runAnalysis(entries, window = 'same day') {
-  const uniqueEvents = getUniqueEvents(entries);
-  const baselineProbabilities = getBaselineProbabilities(entries, uniqueEvents);
+export function runAnalysis(entries, filters = {}) {
+  const baselineProbabilities = getBaselineProbabilities(entries);
   const correlations = {};
 
-  for (const targetEvent of uniqueEvents) {
-    correlations[targetEvent] = {};
-    const targetEntries = entries.filter(entry => formatEvent(entry) === targetEvent);
+  const filterKeys = Object.keys(filters);
+  const targetEventDescription = filterKeys.map(key => `${key}=${filters[key]}`).join(', ');
 
-    for (const precedingEvent of uniqueEvents) {
-      if (targetEvent === precedingEvent) continue;
+  const targetEntries = entries.filter(entry => {
+    return filterKeys.every(key => {
+      if (key === 'category') return entry.category === filters[key];
+      if (key === 'subcategory') return entry.subcategory === filters[key];
+      if (key === 'option') return entry.option === filters[key];
+      return entry.data && entry.data[key] === filters[key];
+    });
+  });
 
-      let count = 0;
-      let targetCount = 0;
+  if (targetEntries.length === 0) return {};
 
-      for (const targetEntry of targetEntries) {
-        targetCount++;
-        const precedingEntries = entries.filter((entry, index) => {
-          if (window === 'same day') {
-            return areOnSameDay(entry.timestamp, targetEntry.timestamp) && entry.timestamp < targetEntry.timestamp;
-          }
-          if (window === 'last 3 entries') {
-            const targetIndex = entries.findIndex(e => e.timestamp === targetEntry.timestamp);
-            return index < targetIndex && index >= targetIndex - 3;
-          }
-          if (window === 'last 6 hours') {
-            return entry.timestamp < targetEntry.timestamp && entry.timestamp >= targetEntry.timestamp - 6 * 60 * 60 * 1000;
-          }
-          return false;
-        });
+  correlations[targetEventDescription] = {};
+  const precedingEventCounts = {};
+  let targetCount = 0;
 
-        if (precedingEntries.some(entry => formatEvent(entry) === precedingEvent)) {
-          count++;
+  for (const targetEntry of targetEntries) {
+    targetCount++;
+    const precedingEntries = entries.filter(entry => entry.timestamp < targetEntry.timestamp);
+
+    const seenPrecedingEvents = new Set();
+    for (const pEntry of precedingEntries) {
+      const pEvents = entryToEventPairs(pEntry);
+      for (const pEvent of pEvents) {
+        // Don't correlate an event with itself
+        if (filterKeys.some(key => key === pEvent.field && filters[key] === pEvent.value)) {
+          continue;
+        }
+
+        const key = JSON.stringify(pEvent);
+        if (!seenPrecedingEvents.has(key)) {
+          precedingEventCounts[key] = (precedingEventCounts[key] || 0) + 1;
+          seenPrecedingEvents.add(key);
         }
       }
+    }
+  }
 
-      if (targetCount > 0) {
-        const conditionalProbability = count / targetCount;
-        const baselineProbability = baselineProbabilities[precedingEvent];
-        const likelihood = conditionalProbability / baselineProbability;
+  for (const key in precedingEventCounts) {
+    const conditionalProbability = precedingEventCounts[key] / targetCount;
+    const baselineProbability = baselineProbabilities[key];
+    const likelihood = conditionalProbability / baselineProbability;
 
-        if (likelihood > 1.2 || likelihood < 0.8) { // Only show significant correlations
-          correlations[targetEvent][precedingEvent] = {
-            conditionalProbability,
-            baselineProbability,
-            likelihood,
-          };
-        }
-      }
+    if (likelihood > 1.2 || likelihood < 0.8) {
+      correlations[targetEventDescription][key] = {
+        conditionalProbability,
+        baselineProbability,
+        likelihood,
+      };
     }
   }
 

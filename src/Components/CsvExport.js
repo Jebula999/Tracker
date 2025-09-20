@@ -33,15 +33,17 @@ function convertEntriesToCSV(entries) {
 function convertAnalysisToCSV(analysis) {
   if (!analysis) return "";
 
-  const headers = ["Target Event", "Preceding Event", "Likelihood", "Conditional Probability"];
+  const headers = ["Target Condition", "Correlated Condition", "Correlated Value", "Likelihood", "Conditional Probability"];
   const lines = [];
 
   for (const targetEvent in analysis) {
     for (const precedingEvent in analysis[targetEvent]) {
       const data = analysis[targetEvent][precedingEvent];
+      const preceding = JSON.parse(precedingEvent);
       const row = [
         `"${targetEvent}"`,
-        `"${precedingEvent}"`,
+        `"${preceding.field}"`,
+        `"${preceding.value}"`,
         data.likelihood.toFixed(2),
         (data.conditionalProbability * 100).toFixed(0) + "%",
       ];
